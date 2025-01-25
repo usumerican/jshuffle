@@ -1,0 +1,29 @@
+{
+  "name": "jshuffle",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Random shuffling and sampling",
+  "keywords": [
+    "random",
+    "shuffle",
+    "sampling"
+  ],
+  "homepage": "https://github.com/usumerican/jshuffle",
+  "license": "MIT",
+  "author": "usumerican",
+  "files": [
+    "index.js"
+  ],
+  "exports": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usumerican/jshuffle.git"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "eslint": "^9.19.0",
+    "prettier": "^3.4.2"
+  }
+}
