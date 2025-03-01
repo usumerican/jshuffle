@@ -1,76 +1,110 @@
 /**
  * Generates a random integer.
  *
- * @param {number} n max integer exclusive
- * @returns {number}
+ * @param {number} n The max integer exclusive.
+ * @returns {number} A random integer between [0, n).
  */
 export function randomInt(n) {
-  return Math.floor(Math.random() * n);
+  return (Math.random() * n) | 0;
 }
 
 /**
- * Shuffles elements in place.
+ * Makes a shuffle function.
  *
- * @template T
- * @param {T[]} target
- * @param {(n: number) => number} randomFn
- * @returns T[] same as target
+ * @param {() => number} randomFn The function returns a random real number between [0.0, 1.0).
+ * @returns A shuffle function.
  */
-export function shuffle(target, randomFn = randomInt) {
-  for (let i = target.length; i > 1; ) {
-    const r = randomFn(i--);
-    [target[i], target[r]] = [target[r], target[i]];
-  }
-  return target;
+export function makeShuffle(randomFn) {
+  /**
+   * @template T
+   * @param {T[]} target
+   * @returns {T[]}
+   */
+  return function (target) {
+    let i = target.length,
+      r;
+    while (i > 1) {
+      r = (randomFn() * i--) | 0;
+      [target[r], target[i]] = [target[i], target[r]];
+    }
+    return target;
+  };
 }
 
 /**
- * Shuffles elements out of place.
+ * Shuffles an array in place.
+ *
+ * @function
+ * @template T
+ * @param {T[]} target The array to shuffle.
+ * @returns {T[]} A shuffled array same as target.
+ */
+export const shuffle = makeShuffle(Math.random);
+
+/**
+ * Shuffles an array out of place.
  *
  * @template T
- * @param {T[]} source
- * @param {(n: number) => number} randomFn
- * @returns T[]
+ * @param {T[]} source The array to shuffle.
+ * @returns {T[]} A new shuffled array.
  */
-export function toShuffled(source, randomFn = randomInt) {
-  return shuffle(source.slice(), randomFn);
+export function toShuffled(source) {
+  return shuffle(source.slice());
+}
+
+/**
+ * Makes a sample function.
+ *
+ * @param {() => number} randomFn The function returns a random real number between [0.0, 1.0).
+ * @returns A sample function.
+ */
+export function makeSample(randomFn) {
+  /**
+   * @template T
+   * @param {T[]} target
+   * @param {number} len
+   * @returns {T[]}
+   */
+  return function (target, len) {
+    if (len > 0) {
+      if (len < target.length) {
+        let i = 0,
+          r;
+        while (i < len) {
+          r = i + ((randomFn() * (target.length - i)) | 0);
+          [target[r], target[i]] = [target[i], target[r]];
+          i++;
+        }
+        target.length = len;
+      } else {
+        makeShuffle(randomFn)(target);
+      }
+    } else {
+      target.length = 0;
+    }
+    return target;
+  };
 }
 
 /**
  * Chooses samples in place.
  *
+ * @function
  * @template T
- * @param {T[]} target
- * @param {number} len
- * @param {(n: number) => number} randomFn
- * @returns T[] same as target
+ * @param {T[]} target The array to sample.
+ * @param {number} len The number of samples.
+ * @returns {T[]} A sampled array same as target.
  */
-export function sample(target, len, randomFn = randomInt) {
-  if (len > 0) {
-    if (len < target.length) {
-      for (let i = 0; i < len; i++) {
-        const r = i + randomFn(target.length - i);
-        [target[i], target[r]] = [target[r], target[i]];
-      }
-      target.length = len;
-    } else {
-      shuffle(target, randomFn);
-    }
-  } else {
-    target.length = 0;
-  }
-  return target;
-}
+export const sample = makeSample(Math.random);
 
 /**
  * Chooses samples out of place.
  *
  * @template T
- * @param {T[]} source
- * @param {number} len
- * @param {(n: number) => number} randomFn
- * @returns T[]
+ * @param {T[]} source The array to sample.
+ * @param {number} len The number of samples.
+ * @returns A new sampled array.
  */
-export function toSampled(source, len, randomFn = randomInt) {
-  return sample(source.slice(), len, randomFn);
+export function toSampled(source, len) {
+  return sample(source.slice(), len);
 }
